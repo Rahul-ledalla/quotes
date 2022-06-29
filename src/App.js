@@ -1,24 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { logAction } from "../src/store/log-slice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import "./App.css";
 
 function App() {
+  const [data, setData] = useState(null);
+  const dispatch = useDispatch();
+  const logged = useSelector((state) => state.log.logIn);
+  // API call
+  const fetchQuote = () => {
+    axios
+      .get("https://api.quotable.io/random")
+      .then((response) => response.data)
+      .then((data) => setData(data));
+  };
+  useEffect(() => {
+    fetchQuote();
+  }, []);
+  console.log(data);
+  const logInUser = (e) => {
+    e.preventDefault();
+    dispatch(logAction.login());
+  };
+  // ///////////////////////////
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <button onClick={logInUser}>{logged ? "Log-out" : "Log-in"}</button>
+      <div className="App">
+        {data && logged && (
+          <div className="quoteCard">
+            <p> {data.content} </p>
+            <h3>{data.author} </h3>
+          </div>
+        )}
+      </div>
+      <button onClick={fetchQuote}>Fetch Quote</button>
+    </>
   );
 }
 
